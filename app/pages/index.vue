@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue'
 
 const config = useRuntimeConfig()
 
@@ -20,6 +20,9 @@ const conversation = ref<ConversationItem[]>([])
 // Refs for auto-focus
 const initialInputRef = ref<HTMLInputElement | null>(null)
 const followUpTextareaRef = ref<HTMLTextAreaElement | null>(null)
+
+// Computed for button disabled state
+const isButtonDisabled = computed(() => loading.value || !prompt.value.trim())
 
 // Auto-resize textarea
 const autoResizeTextarea = () => {
@@ -169,52 +172,50 @@ function clearAll() {
       </div>
 
       <!-- Initial Input (Only shown when no conversation yet) -->
-      <ClientOnly>
-        <div v-if="conversation.length === 0 && !loading" class="mb-20 animate-slideUp">
-          <div class="relative max-w-4xl mx-auto">
-            <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m18 16 4-4-4-4"></path>
-                <path d="m6 8-4 4 4 4"></path>
-                <path d="m14.5 4-5 16"></path>
-              </svg>
-            </div>
-
-            <input
-              id="ask_ai"
-              name="prompt"
-              ref="initialInputRef"
-              v-model="prompt"
-              @keyup.enter="askAI"
-              type="text"
-              placeholder="Ask me anything... e.g., 'write a function to sum two numbers in python'"
-              class="w-full pl-16 pr-40 py-5 bg-[#161b22]/80 backdrop-blur-sm border-2 border-[#30363d] rounded-2xl focus:outline-none focus:border-[#58a6ff] focus:ring-4 focus:ring-[#58a6ff]/20 transition-all text-white placeholder-gray-500 text-lg shadow-2xl hover:border-[#484f58]"
-              :disabled="loading"
-            />
-
-            <button
-              @click="askAI"
-              :disabled="loading || !prompt.trim()"
-              class="absolute right-2 top-1/2 -translate-y-1/2 px-8 py-3 bg-gradient-to-r from-[#238636] to-[#2ea043] hover:from-[#2ea043] hover:to-[#3fb950] rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:shadow-green-500/30 flex items-center gap-2.5 transform hover:scale-105 active:scale-95"
-            >
-              <span v-if="loading" class="flex items-center gap-2.5">
-                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating...
-              </span>
-              <span v-else class="flex items-center gap-2.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-                Generate
-              </span>
-            </button>
+      <div v-if="conversation.length === 0 && !loading" class="mb-20 animate-slideUp">
+        <div class="relative max-w-4xl mx-auto">
+          <div class="absolute left-5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m18 16 4-4-4-4"></path>
+              <path d="m6 8-4 4 4 4"></path>
+              <path d="m14.5 4-5 16"></path>
+            </svg>
           </div>
+
+          <input
+            id="ask_ai"
+            name="prompt"
+            ref="initialInputRef"
+            v-model="prompt"
+            @keyup.enter="askAI"
+            type="text"
+            placeholder="Ask me anything... e.g., 'write a function to sum two numbers in python'"
+            class="w-full pl-16 pr-40 py-5 bg-[#161b22]/80 backdrop-blur-sm border-2 border-[#30363d] rounded-2xl focus:outline-none focus:border-[#58a6ff] focus:ring-4 focus:ring-[#58a6ff]/20 transition-all text-white placeholder-gray-500 text-lg shadow-2xl hover:border-[#484f58]"
+            :disabled="loading"
+          />
+
+          <button
+            @click="askAI"
+            :disabled="isButtonDisabled"
+            class="absolute right-2 top-1/2 -translate-y-1/2 px-8 py-3 bg-gradient-to-r from-[#238636] to-[#2ea043] hover:from-[#2ea043] hover:to-[#3fb950] rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:shadow-green-500/30 flex items-center gap-2.5 transform hover:scale-105 active:scale-95"
+          >
+            <span v-if="loading" class="flex items-center gap-2.5">
+              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Generating...
+            </span>
+            <span v-else class="flex items-center gap-2.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+              Generate
+            </span>
+          </button>
         </div>
-      </ClientOnly>
+      </div>
 
       <!-- Conversation History -->
       <div v-if="conversation.length > 0" class="space-y-10 animate-fadeIn mb-10">
@@ -288,53 +289,49 @@ function clearAll() {
       </div>
 
       <!-- Follow-up Input (Fixed at BOTTOM with z-index when answer exists) -->
-      <ClientOnly>
-        <div v-if="conversation.length > 0 || loading" class="fixed bottom-0 left-0 right-0 z-50 pt-4 pb-6 bg-gradient-to-t from-[#0a0e12] via-[#0d1117] to-transparent backdrop-blur-md border-t border-[#30363d]/50 animate-slideUp">
-          <div class="relative max-w-4xl mx-auto px-6">
-            <div class="absolute left-11 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none z-10">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="m18 16 4-4-4-4"></path>
-                <path d="m6 8-4 4 4 4"></path>
-                <path d="m14.5 4-5 16"></path>
-              </svg>
-            </div>
-
-            <textarea
-              ref="followUpTextareaRef"
-              v-model="prompt"
-              @keydown.enter.exact.prevent="askAI"
-              @keydown.enter.shift="(e) => { e.preventDefault(); prompt += '\n'; autoResizeTextarea(); }"
-              rows="1"
-              placeholder="Ask a follow-up question... (Shift + Enter for new line)"
-              class="w-full pl-16 pr-40 py-5 bg-[#161b22]/95 backdrop-blur-sm border-2 border-[#30363d] rounded-2xl focus:outline-none focus:border-[#58a6ff] focus:ring-4 focus:ring-[#58a6ff]/20 transition-all text-white placeholder-gray-500 text-lg shadow-2xl hover:border-[#484f58] resize-none overflow-hidden min-h-[70px] max-h-[200px]"
-              :disabled="loading"
-            ></textarea>
-
-            <button
-              @click="askAI"
-              :disabled="loading || !prompt.trim()"
-              class="absolute right-9 top-1/2 -translate-y-1/2 z-20 px-8 py-3 bg-gradient-to-r from-[#238636] to-[#2ea043] hover:from-[#2ea043] hover:to-[#3fb950] rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:shadow-green-500/30 flex items-center gap-2.5 transform hover:scale-105 active:scale-95"
-            >
-              <span v-if="loading" class="flex items-center gap-2.5">
-                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                </svg>
-                Generating...
-              </span>
-              <span v-else class="flex items-center gap-2.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <path d="M5 12h14"></path>
-                  <path d="m12 5 7 7-7 7"></path>
-                </svg>
-                Send
-              </span>
-            </button>
+      <div v-if="conversation.length > 0 || loading" class="fixed bottom-0 left-0 right-0 z-50 pt-4 pb-6 bg-gradient-to-t from-[#0a0e12] via-[#0d1117] to-transparent backdrop-blur-md border-t border-[#30363d]/50 animate-slideUp">
+        <div class="relative max-w-4xl mx-auto px-6">
+          <div class="absolute left-11 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m18 16 4-4-4-4"></path>
+              <path d="m6 8-4 4 4 4"></path>
+              <path d="m14.5 4-5 16"></path>
+            </svg>
           </div>
-        </div>
-      </ClientOnly>
 
-      <!-- Clear Button (Below response) -->
+          <textarea
+            ref="followUpTextareaRef"
+            v-model="prompt"
+            @keydown.enter.exact.prevent="askAI"
+            @keydown.enter.shift="(e) => { e.preventDefault(); prompt += '\n'; autoResizeTextarea(); }"
+            rows="1"
+            placeholder="Ask a follow-up question... (Shift + Enter for new line)"
+            class="w-full pl-16 pr-40 py-5 bg-[#161b22]/95 backdrop-blur-sm border-2 border-[#30363d] rounded-2xl focus:outline-none focus:border-[#58a6ff] focus:ring-4 focus:ring-[#58a6ff]/20 transition-all text-white placeholder-gray-500 text-lg shadow-2xl hover:border-[#484f58] resize-none overflow-hidden min-h-[70px] max-h-[200px]"
+            :disabled="loading"
+          ></textarea>
+
+          <button
+            @click="askAI"
+            :disabled="isButtonDisabled"
+            class="absolute right-9 top-1/2 -translate-y-1/2 z-20 px-8 py-3 bg-gradient-to-r from-[#238636] to-[#2ea043] hover:from-[#2ea043] hover:to-[#3fb950] rounded-xl font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-xl hover:shadow-2xl hover:shadow-green-500/30 flex items-center gap-2.5 transform hover:scale-105 active:scale-95"
+          >
+            <span v-if="loading" class="flex items-center gap-2.5">
+              <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Generating...
+            </span>
+            <span v-else class="flex items-center gap-2.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14"></path>
+                <path d="m12 5 7 7-7 7"></path>
+              </svg>
+              Send
+            </span>
+          </button>
+        </div>
+      </div>      <!-- Clear Button (Below response) -->
       <div v-if="conversation.length > 0 || loading" class="flex justify-center mt-10 mb-40 pb-10">
         <button
           @click="clearAll"
