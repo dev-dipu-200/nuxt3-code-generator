@@ -22,3 +22,5 @@ logs
 .env
 .env.*
 !.env.example
+
+generate_documentation.py

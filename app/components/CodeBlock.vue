@@ -65,7 +65,7 @@ async function copyCode() {
           <div class="flex flex-col">
             <span class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Language</span>
             <span class="text-sm font-bold text-green-400 capitalize font-mono">
-              {{ lang === 'js' ? 'JavaScript' : lang === 'ts' ? 'TypeScript' : lang === 'py' ? 'Python' : lang }}
+              {{ lang === 'js' ? 'JavaScript' : lang === 'ts' ? 'TypeScript' : lang === 'py' ? 'Python' : lang  === 'rb' ? 'Ruby' : lang === 'go' ? 'Go' : lang === 'java' ? 'Java' : lang === 'csharp' ? 'C#' : lang === 'cpp' ? 'C++' : lang }}
             </span>
           </div>
         </div>
