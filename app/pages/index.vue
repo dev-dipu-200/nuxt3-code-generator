@@ -23,9 +23,12 @@ const followUpTextareaRef = ref<HTMLTextAreaElement | null>(null)
 
 // Computed for button disabled state
 const isButtonDisabled = computed(() => {
-  console.log("Compute Start");
   return loading.value || !prompt.value.trim()
-  console.log("Compute End");
+})
+
+// Watch prompt for debugging
+watch(prompt, (newVal) => {
+  console.log('Prompt changed:', newVal, 'Disabled:', isButtonDisabled.value)
 })
 
 // Auto-resize textarea
@@ -190,7 +193,8 @@ function clearAll() {
             id="ask_ai"
             name="prompt"
             ref="initialInputRef"
-            v-model="prompt"
+            :value="prompt"
+            @input="prompt = $event.target.value"
             @keyup.enter="askAI"
             type="text"
             placeholder="Ask me anything... e.g., 'write a function to sum two numbers in python'"
@@ -305,7 +309,8 @@ function clearAll() {
 
           <textarea
             ref="followUpTextareaRef"
-            v-model="prompt"
+            :value="prompt"
+            @input="prompt = $event.target.value"
             @keydown.enter.exact.prevent="askAI"
             @keydown.enter.shift="(e) => { e.preventDefault(); prompt += '\n'; autoResizeTextarea(); }"
             rows="1"
