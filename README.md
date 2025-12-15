@@ -20,6 +20,27 @@ yarn install
 bun install
 ```
 
+## Environment Configuration
+
+Create a `.env` file in the root directory and configure the following variables:
+
+```bash
+# API Configuration
+NUXT_PUBLIC_API_BASE_URL=https://aicoderdemo-api.devtrust.biz
+```
+
+You can copy the example file:
+
+```bash
+cp .env.example .env
+```
+
+For local development with a local backend, use:
+
+```bash
+NUXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
 ## Development Server
 
 Start the development server on `http://localhost:3000`:

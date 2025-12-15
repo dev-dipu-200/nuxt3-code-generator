@@ -13,6 +13,12 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss'
   ],
 
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.NUXT_PUBLIC_API_BASE_URL || 'https://aicoderdemo-api.devtrust.biz'
+    }
+  },
+
   content: {
     highlight: {
       theme: 'github-dark',

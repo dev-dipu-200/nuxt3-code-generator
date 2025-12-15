@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
 
+const config = useRuntimeConfig()
+
 // Reactive state
 const prompt = ref('')
 const answer = ref('')
@@ -58,7 +60,7 @@ async function askAI() {
   const itemIndex = conversation.value.length - 1
 
   try {
-    const res = await $fetch<{ answer: string }>('http://localhost:8000/api/ask', {
+    const res = await $fetch<{ answer: string }>(`${config.public.apiBaseUrl}/api/ask`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: { question: currentQuestion }
@@ -82,7 +84,7 @@ async function askAI() {
 
   } catch (err) {
     if (conversation.value[itemIndex]) {
-      conversation.value[itemIndex].answer = 'Error: Could not connect to backend (localhost:8000)'
+      conversation.value[itemIndex].answer = 'Error: Could not connect to backend API. Please try again later.'
       conversation.value[itemIndex].isStreaming = false
     }
   } finally {
