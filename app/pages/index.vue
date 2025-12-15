@@ -22,7 +22,11 @@ const initialInputRef = ref<HTMLInputElement | null>(null)
 const followUpTextareaRef = ref<HTMLTextAreaElement | null>(null)
 
 // Computed for button disabled state
-const isButtonDisabled = computed(() => loading.value || !prompt.value.trim())
+const isButtonDisabled = computed(() => {
+  console.log("Compute Start");
+  return loading.value || !prompt.value.trim()
+  console.log("Compute End");
+})
 
 // Auto-resize textarea
 const autoResizeTextarea = () => {
